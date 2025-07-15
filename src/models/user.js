@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const userSchema = new mongoose.Schema(
   {
     firstName: {
@@ -38,11 +40,16 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      validate(value) {
-        if (!["male", "female", "other"].includes(value)) {
-          throw new Error("Gender Data is not valid");
-        }
+      enum: {
+        values: ["male", "female", "others"],
+        message: `{VALUE} is incorrect`,
       },
+
+      // validate(value) {
+      //   if (!["male", "female", "other"].includes(value)) {
+      //     throw new Error("Gender Data is not valid");
+      //   }
+      // },
     },
     photoUrl: {
       type: String,
@@ -66,5 +73,22 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-const userModel = mongoose.model("User", userSchema);
-module.exports = userModel;
+//never use ()=> funtion here it will break things
+userSchema.methods.getJWT = async function () {
+  const user = this;
+  const token = await jwt.sign({ _id: user._id }, "Aniket@7681$", {
+    expiresIn: "7d",
+  });
+  return token;
+};
+userSchema.methods.validatePassword = async function (passwordInputByUser) {
+  const user = this;
+  // const passwordHash=user.password;
+  const isPasswordValid = await bcrypt.compare(
+    passwordInputByUser,
+    this.password
+  );
+  return isPasswordValid;
+};
+
+module.exports = mongoose.model("User", userSchema);
