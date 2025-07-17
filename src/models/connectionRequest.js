@@ -24,7 +24,7 @@ const connectionRequestSchema = new mongoose.Schema(
   }
 );
 
-connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
+connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 }, { unique: true });
 
 //whenever writing db function try to write it like this and not by arrow function
 
@@ -33,8 +33,12 @@ connectionRequestSchema.pre("save", function (next) {
   //check if fromUserId is same as toUserId
   if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
     throw new Error("Cannot send request to yourself");
-    next();
   }
+  next();
 });
 // Model name always start with capital Letters
-module.exports = mongoose.model("ConnectionRequest", connectionRequestSchema);
+const ConnectionRequest = new mongoose.model(
+  "ConnectionRequest",
+  connectionRequestSchema
+);
+module.exports = ConnectionRequest;

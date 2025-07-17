@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const requestRouter = express.Router();
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
@@ -40,7 +41,8 @@ requestRouter.post(
           message: ` Request Already Exists :)`,
         });
       }
-
+      // console.log("fromUserID :" + fromUserId);
+      // console.log("toUserID: " + toUserId);
       const connectionRequest = new ConnectionRequest({
         fromUserId,
         toUserId,
@@ -49,7 +51,7 @@ requestRouter.post(
       const data = await connectionRequest.save();
 
       res.json({
-        message: req.user.firstName + "is" + status + "in" + toUserId.firstName,
+        message: `${req.user.firstName}  is ${status} in ${existToUserId.firstName}`,
         data,
       });
     } catch (err) {
@@ -58,5 +60,40 @@ requestRouter.post(
     console.log("Sending a Connection Request");
   }
 );
+requestRouter.post(
+  "/request/review/:status/:requestId",
+  userAuth,
+  async (req, res) => {
+    try {
+      const loggedInUser = req.user;
+      const { status, requestId } = req.params;
+      const allowedStatus = ["accepted", "rejected"];
+      if (!allowedStatus.includes(status)) {
+        return res.status(400).send("Invalid status");
+      }
+      console.log("RequestId:", requestId);
+      console.log("To User ID:", loggedInUser._id);
+      const connectionRequest = await ConnectionRequest.findOne({
+        _id: requestId,
+        toUserId: loggedInUser._id,
+        status: "interested",
+      });
 
+      if (!connectionRequest) {
+        return res.status(404).json({
+          message: "Connection Request not Found",
+        });
+      }
+
+      connectionRequest.status = status;
+      const data = await connectionRequest.save();
+      res.json({
+        message: "Connection request " + status,
+        data,
+      });
+    } catch (err) {
+      res.status(400).send("ERROR : " + err.message);
+    }
+  }
+);
 module.exports = requestRouter;
