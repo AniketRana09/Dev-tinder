@@ -41,8 +41,7 @@ requestRouter.post(
           message: ` Request Already Exists :)`,
         });
       }
-      // console.log("fromUserID :" + fromUserId);
-      // console.log("toUserID: " + toUserId);
+
       const connectionRequest = new ConnectionRequest({
         fromUserId,
         toUserId,
@@ -65,19 +64,21 @@ requestRouter.post(
   userAuth,
   async (req, res) => {
     try {
-      const loggedInUser = req.user;
+      const loggedInUser = req.user._id;
+
       const { status, requestId } = req.params;
+
       const allowedStatus = ["accepted", "rejected"];
       if (!allowedStatus.includes(status)) {
         return res.status(400).send("Invalid status");
       }
-      console.log("RequestId:", requestId);
-      console.log("To User ID:", loggedInUser._id);
+
       const connectionRequest = await ConnectionRequest.findOne({
         _id: requestId,
-        toUserId: loggedInUser._id,
+        toUserId: loggedInUser,
         status: "interested",
       });
+      console.log("Connection Request", connectionRequest);
 
       if (!connectionRequest) {
         return res.status(404).json({
