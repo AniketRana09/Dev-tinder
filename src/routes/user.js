@@ -4,7 +4,7 @@ const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 // const { populate } = require("../models/user");
 const userRouter = express.Router();
-const USER_SAFE_DATA = "firstName  LastName phtotUrl gender about skills";
+const USER_SAFE_DATA = "firstName lastName photoUrl gender age about skills";
 //Get all the pending connection request for the logged in
 userRouter.get("/user/request/recieved", userAuth, async (req, res) => {
   try {
@@ -58,13 +58,12 @@ userRouter.get("/feed", userAuth, async (req, res) => {
       $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
     }).select("fromUserId toUserId");
 
-    // res.send(connectionRequests);
     const hideUserFromFeed = new Set();
     connectionRequests.forEach((req) => {
       hideUserFromFeed.add(req.fromUserId.toString());
       hideUserFromFeed.add(req.toUserId.toString());
     });
-    console.log(hideUserFromFeed);
+
     const users = await User.find({
       $and: [
         { _id: { $nin: Array.from(hideUserFromFeed) } },
@@ -74,7 +73,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
       .select(USER_SAFE_DATA)
       .skip(skip)
       .limit(limit);
-    res.jsin({ data: users });
+    res.json({ info: users });
   } catch (err) {
     res.status(400).send("Error : " + err.message);
   }
