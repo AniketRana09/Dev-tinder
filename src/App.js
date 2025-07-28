@@ -8,12 +8,13 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "https://dev-tinder-2hfb.onrender.com",
+    origin: true,
     methods: "*",
 
     credentials: true,
   })
 );
+//change it to local host when working in production
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
