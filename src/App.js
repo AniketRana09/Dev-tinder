@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://dev-tinder-2hfb.onrender.com",
     methods: "*",
 
     credentials: true,
