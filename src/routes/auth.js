@@ -23,6 +23,9 @@ authRouter.post("/signup", async (req, res) => {
     //Add the toke n to cookie
     res.cookie("token", token, {
       expires: new Date(Date.now() + 8 * 3600000),
+      httpOnly: true,
+      secure: true, // required for HTTPS (Render uses HTTPS)
+      sameSite: "None",
     });
     const savedUser = await user.save();
     res.send({ message: "User Created Successfully", data: savedUser });
@@ -45,6 +48,9 @@ authRouter.post("/login", async (req, res) => {
       //Add the toke n to cookie
       res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000),
+        httpOnly: true,
+        secure: true, // required for HTTPS (Render uses HTTPS)
+        sameSite: "None",
       });
       res.send(user);
     } else {
