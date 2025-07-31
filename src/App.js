@@ -13,6 +13,13 @@ app.use(
     credentials: true,
   })
 );
+app.options(
+  "*",
+  cors({
+    origin: "https://devtinder-front-end.vercel.app",
+    credentials: true,
+  })
+);
 //change it to local host when working in production
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
